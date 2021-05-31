@@ -50,6 +50,13 @@ func init() {
 		beego.NSRouter("/focus/doAdd", &admin.FocusController{}, `post:DoAdd`),
 		beego.NSRouter("/focus/doEdit", &admin.FocusController{}, `post:DoEdit`),
 		beego.NSRouter("/focus/delete", &admin.FocusController{}, `get:Delete`),
+		//商品分类管理
+		beego.NSRouter("/goodsCate", &admin.GoodsCateController{}),
+		beego.NSRouter("/goodsCate/add", &admin.GoodsCateController{}, `get:Add`),
+		beego.NSRouter("/goodsCate/edit", &admin.GoodsCateController{}, `get:Edit`),
+		beego.NSRouter("/goodsCate/doAdd", &admin.GoodsCateController{}, `post:DoAdd`),
+		beego.NSRouter("/goodsCate/doEdit", &admin.GoodsCateController{}, `post:DoEdit`),
+		beego.NSRouter("/goodsCate/delete", &admin.GoodsCateController{}, `get:Delete`),
 	)
 	beego.AddNamespace(ns)
 }
