@@ -6,7 +6,7 @@
 
 封装公共跳转方法，显示正确或错误跳转信息，于`controllers/base.go`。
 
-``` go
+```go
 func (c *BaseController) Success(message string, redirect string) {
 	c.Data["message"] = message
 	c.Data["redirect"] = "/" + beego.AppConfig.String("adminPath") + redirect
@@ -91,6 +91,47 @@ func GetDate() string {
 	template := "2006-01-02 15:04:05"
 	return time.Now().Format(template)
 }
+```
+
+### 图片剪切
+
+使用`go_image`包，进行图片裁剪
+
+```go
+filename := "static/upload/a.jpg"
+	savepath := "static/upload/a_800.jpg"
+	err1 := ScaleF2F(filename, savepath, 800)
+	if err1 != nil {
+		beego.Error(err1)
+	}
+
+	// filename := "static/upload/a.jpg"
+	// savepath := "static/upload/a_800_300.jpg"
+
+	// err := ThumbnailF2F(filename, savepath, 800, 300)
+	// if err != nil {
+	// 	beego.Error(err)
+	// }
+
+	//按宽度和高度进行比例缩放，输入和输出都是文件
+	// filename := "static/upload/b.png"
+	// savepath := "static/upload/b_400.png"
+	// err := ThumbnailF2F(filename, savepath, 400, 400)
+	// if err != nil {
+	// 	beego.Error(err)
+	// }
+```
+
+### 二维码
+
+使用`go-qrcode`进行二维码生成
+
+```go
+	err5 := qrcode.WriteFile("https://www.bing.com", qrcode.Medium, 800, "static/upload/qr.png")
+	if err5 != nil {
+		beego.Error("生成二维码失败")
+	}
+	c.TplName = "index/index.html"
 ```
 
 ## 数据库拆分表
