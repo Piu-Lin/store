@@ -1,5 +1,8 @@
 $(function(){
 	app.init()
+	$(window).resize(function(){
+		app.resizeIframe()
+	})
 })
 var config={
 	adminPath:"admin"
@@ -14,6 +17,7 @@ var app={
 
 	},
 	slideToggle:function(){
+		$('.aside>li:nth-child(1) ul,.aside>li:nth-child(2) ul').hide()
 		$('.aside h4').click(function(){
 			//		$(this).toggleClass('active');
 					$(this).siblings('ul').slideToggle();

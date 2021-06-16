@@ -16,6 +16,7 @@
 - goodsCate.go 映射表示了一个产品大类，例如手机、路由器
 - goodsType.go 映射表示了一类产品所共有的名称
 - goodsTypeAtrribute 映射表示一类产品的详细描述
+- goods.go 映射表示具体商品
 
 ## 其他
 
