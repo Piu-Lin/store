@@ -17,6 +17,7 @@
 - goodsType.go 映射表示了一类产品所共有的名称
 - goodsTypeAtrribute 映射表示一类产品的详细描述
 - goods.go 映射表示具体商品
+- goodsColor 映射表示商品颜色
 
 ## 其他
 

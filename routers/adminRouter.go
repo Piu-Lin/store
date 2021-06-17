@@ -78,6 +78,8 @@ func init() {
 		beego.NSRouter("/goods/doAdd", &admin.GoodsController{}, `post:DoAdd`),
 		beego.NSRouter("/goods/doEdit", &admin.GoodsController{}, `post:DoEdit`),
 		beego.NSRouter("/goods/delete", &admin.GoodsController{}, `get:Delete`),
+		beego.NSRouter("/goods/doUpload", &admin.GoodsController{}, `post:DoUpload`),
+		beego.NSRouter("/goods/getGoodsTypeAttribute", &admin.GoodsController{}, `get:GetGoodsTypeAttribute`),
 	)
 	beego.AddNamespace(ns)
 }
