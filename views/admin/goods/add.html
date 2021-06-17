@@ -1,7 +1,16 @@
 {{template "../public/header.html"}}
-<link href="https://cdn.jsdelivr.net/npm/froala-editor@latest/css/froala_editor.pkgd.min.css" rel="stylesheet" type="text/css" />
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/froala-editor@latest/js/froala_editor.pkgd.min.js"></script>
+<!-- 加载富文本编辑器 -->
+<link href="/static/admin/wysiwyg-editor/css/froala_editor.pkgd.min.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/static/admin/wysiwyg-editor/js/froala_editor.pkgd.min.js"></script>
 <script type="text/javascript" src="/static/admin/wysiwyg-editor/js/zh_cn.js"></script>
+
+
+<!-- 批量上传图片 -->
+<link rel="stylesheet" type="text/css" href="/static/admin/diyUpload/css/webuploader.css">
+<link rel="stylesheet" type="text/css" href="/static/admin/diyUpload/css/diyUpload.css">
+<script type="text/javascript" src="/static/admin/diyUpload/js/webuploader.html5only.min.js"></script>
+<script type="text/javascript" src="/static/admin/diyUpload/js/diyUpload.js"></script>
+
 <div class="container-fluid">
     <div class="row">       
         <div class="panel panel-default">              
@@ -129,10 +138,14 @@
                                       </ul>
       
                               </div>
-                              <div role="tabpanel" class="tab-pane" id="photo">
       
-                                      商品相册
-                              </div>
+                                      
+                              <div role="tabpanel" class="tab-pane" id="photo">
+                                <div id="photoUploader" ></div>
+                                <div class="photoList" id="photoList">
+
+                               </div>
+                             </div>
                         </div>
 
 
@@ -149,6 +162,7 @@
     </div>
 </div>
 <script>
+        //配置富文本编辑器
     new FroalaEditor('#content', {
         height: 200,
         language: 'zh_cn',
@@ -156,6 +170,7 @@
         toolbarButtonsXS: [  ['bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', 'outdent', 'indent', 'clearFormatting', 'insertTable', 'html'],['undo', 'redo'], ],
         imageUploadURL: '/{{config "String" "adminPath" ""}}/goods/doUpload',
     });
+     //动态生成商品规格参数
 $(function(){
     $("#goods_type_id").change(function(){
        var cate_id = $(this).val()
@@ -185,6 +200,22 @@ $(function(){
        })
     })
 })
+    //批量上传图片
+    $(function(){        
+        $('#photoUploader').diyUpload({
+            url: '/{{config "String" "adminPath" ""}}/goods/doUpload',
+            success:function( response ) {
+                console.info( response );
+                var photoStr='<input type="hidden" name="goods_image_list" value='+response.link+' />';
+                $("#photoList").append(photoStr)
+            },
+            error:function( err ) {
+                console.info( err );	
+            }
+        });
+        
+    })
+    
 </script>
 </body>
 </html>

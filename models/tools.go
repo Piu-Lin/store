@@ -25,6 +25,9 @@ func DateToUnix(str string) int64 {
 	}
 	return t.Unix()
 }
+func GetUnixNano() int64 {
+	return time.Now().UnixNano()
+}
 
 func GetUnix() int64 {
 	return time.Now().Unix()
