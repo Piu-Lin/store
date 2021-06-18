@@ -20,7 +20,7 @@ func (c *MainController) Get() {
 		//1、获取角色id
 		roleId := userinfo.RoleId
 
-		//2、获取全部的权限 (排序)，忘记的话参考：https://gorm.io/zh_CN/docs/preload.html
+		//2、获取全部的权限 (排序)参考：https://gorm.io/zh_CN/docs/preload.html
 		access := []models.Access{}
 		models.DB.Preload("AccessItem", func(db *gorm.DB) *gorm.DB {
 			return db.Order("access.sort DESC")

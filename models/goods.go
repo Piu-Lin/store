@@ -23,7 +23,7 @@ type Goods struct {
 	GoodsColor    string  // 商品颜色
 	GoodsKeywords string  // 商品关键词
 	GoodsDesc     string  // 排序
-	Content       string  // 详情
+	GoodsContent  string  // 详情
 	IsDelete      int     // 是否已删除 1为是
 	IsHot         int     // 是否为热销款式 1为是
 	IsBest        int     // 是否为最佳款式 1为是
