@@ -13,6 +13,8 @@
 - goods.go 产品对象
 - goodsTypeAttr.go 产品类型的描述信息
 
+实现上述增删改查逻辑
+
 ## base.go 控制基本公共方法
 
 - 公共跳转方法
