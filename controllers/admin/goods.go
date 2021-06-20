@@ -378,3 +378,51 @@ func (c *GoodsController) GetGoodsTypeAttribute() {
 	}
 	c.ServeJSON()
 }
+
+//修改图片对应颜色信息
+func (c *GoodsController) ChangeGoodsImageColor() {
+	colorId, err1 := c.GetInt("color_id")
+	goodsImageId, err2 := c.GetInt("goods_image_id")
+	goodsImage := models.GoodsImage{Id: goodsImageId}
+	models.DB.Find(&goodsImage)
+	goodsImage.ColorId = colorId
+	err3 := models.DB.Save(&goodsImage).Error
+
+	if err1 != nil || err2 != nil || err3 != nil {
+		c.Data["json"] = map[string]interface{}{
+			"result":  "更新失败",
+			"success": false,
+		}
+	} else {
+		c.Data["json"] = map[string]interface{}{
+			"result":  "更新成功",
+			"success": true,
+		}
+	}
+	c.ServeJSON()
+
+}
+
+//删除图库
+func (c *GoodsController) RemoveGoodsImage() {
+	goodsImageId, err1 := c.GetInt("goods_image_id")
+	goodsImage := models.GoodsImage{Id: goodsImageId}
+	err2 := models.DB.Delete(&goodsImage).Error
+
+	if err1 != nil || err2 != nil {
+		c.Data["json"] = map[string]interface{}{
+			"result":  "删除失败",
+			"success": false,
+		}
+		c.ServeJSON()
+	} else {
+		//删除图片
+		// os.Remove()
+		c.Data["json"] = map[string]interface{}{
+			"result":  "删除",
+			"success": true,
+		}
+		c.ServeJSON()
+	}
+
+}
