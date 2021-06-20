@@ -53,6 +53,14 @@ table .th {
 
 .input-form li {
   margin: 5px 0px;
+  padding: 5px 0px;
+}
+.input-form li span {
+  display: inline-block;
+  width: 100px;
+}
+.input-form li input[type="text"] {
+  width: 400px;
 }
 
 input[type="file"] {
