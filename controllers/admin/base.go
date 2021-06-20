@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"strings"
 
 	"github.com/astaxie/beego"
 )
@@ -16,16 +17,26 @@ type BaseController struct {
 
 func (c *BaseController) Success(message string, redirect string) {
 	c.Data["message"] = message
-	c.Data["redirect"] = "/" + beego.AppConfig.String("adminPath") + redirect
+	if strings.Contains(redirect, "http") {
+		c.Data["redirect"] = redirect
+	} else {
+		c.Data["redirect"] = "/" + beego.AppConfig.String("adminPath") + redirect
+	}
 	c.TplName = "admin/public/success.html"
 }
 
 func (c *BaseController) Error(message string, redirect string) {
 	c.Data["message"] = message
-	c.Data["redirect"] = "/" + beego.AppConfig.String("adminPath") + redirect
+	if strings.Contains(redirect, "http") {
+		c.Data["redirect"] = redirect
+	} else {
+		c.Data["redirect"] = "/" + beego.AppConfig.String("adminPath") + redirect
+	}
 	c.TplName = "admin/public/error.html"
 }
-
+func (c *BaseController) Goto(redirect string) {
+	c.Redirect("/"+beego.AppConfig.String("adminPath")+redirect, 302)
+}
 func (c *BaseController) UploadImg(picName string) (string, error) {
 	//1、获取上传的文件
 	f, h, err := c.GetFile(picName)

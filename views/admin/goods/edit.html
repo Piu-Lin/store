@@ -36,9 +36,8 @@
                         <!-- Tab panes -->
                         <div class="tab-content">
                             <div role="tabpanel" class="tab-pane active" id="general">
-
                                 <input type="hidden" name="id" value="{{.goods.Id}}">
-
+                                <input type="hidden" name="prevPage" value="{{.prevPage}}">
                                 <ul class="form_input">
                                     <li> <span> 商品标题:</span> <input type="text" name="title" class="input"
                                             value="{{.goods.Title}}" /></li>

@@ -3,6 +3,7 @@ package admin
 import (
 	"beegoxiaomi/models"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"sync"
@@ -17,9 +18,41 @@ type GoodsController struct {
 }
 
 func (c *GoodsController) Get() {
-	goods := []models.Goods{}
-	models.DB.Find(&goods)
-	c.Data["goodsList"] = goods
+	//当前页
+	page, _ := c.GetInt("page")
+	if page == 0 {
+		page = 1
+	}
+	//每一页显示的数量
+	pageSize := 3
+
+	//实现搜索功能
+	keyword := c.GetString("keyword")
+	where := "1=1"
+	if len(keyword) > 0 {
+		where += " AND title like \"%" + keyword + "%\""
+	}
+	//查询数据
+	goodsList := []models.Goods{}
+	models.DB.Where(where).Offset((page - 1) * pageSize).Limit(pageSize).Find(&goodsList)
+
+	//判断是否有数据，如果没有数据跳转到上一页
+	if len(goodsList) == 0 {
+		prvPage := page - 1
+		if prvPage == 0 {
+			prvPage = 1
+		}
+		c.Goto("/goods?page=" + strconv.Itoa(prvPage))
+	}
+
+	//查询goods表里面的数量
+	var count int64
+	models.DB.Where(where).Table("goods").Count(&count)
+
+	c.Data["goodsList"] = goodsList
+	c.Data["totalPages"] = math.Ceil(float64(count) / float64(pageSize))
+	c.Data["page"] = page
+	c.Data["keyword"] = keyword
 	c.TplName = "admin/goods/index.html"
 }
 
@@ -148,6 +181,7 @@ func (c *GoodsController) DoAdd() {
 	wg.Wait()
 	c.Success("增加数据成功", "/goods")
 }
+
 func (c *GoodsController) Edit() {
 	// 1、获取商品数据
 	id, err1 := c.GetInt("id")
@@ -219,6 +253,8 @@ func (c *GoodsController) Edit() {
 	}
 
 	c.Data["goodsAttrStr"] = goodsAttrStr
+	//上一页地址
+	c.Data["prevPage"] = c.Ctx.Request.Referer()
 	c.TplName = "admin/goods/edit.html"
 }
 
@@ -251,6 +287,8 @@ func (c *GoodsController) DoEdit() {
 	goodsTypeId, _ := c.GetInt("goods_type_id")
 	sort, _ := c.GetInt("sort")
 	status, _ := c.GetInt("status")
+	//获取修改页面上一页的地址
+	prevPage := c.GetString("prevPage")
 
 	//2、获取颜色信息 把颜色转化成字符串
 	goodsColorStr := strings.Join(goodsColor, ",")
@@ -339,11 +377,31 @@ func (c *GoodsController) DoEdit() {
 	}()
 
 	wg.Wait()
-	c.Success("修改数据成功", "/goods")
+	c.Success("修改数据成功", prevPage)
 }
-func (c *GoodsController) Delete() {
 
-	c.Ctx.WriteString("删除")
+func (c *GoodsController) Delete() {
+	id, err1 := c.GetInt("id")
+	if err1 != nil {
+		c.Error("传入参数错误", "/goods")
+		return
+	}
+	goods := models.Goods{Id: id}
+	err2 := models.DB.Delete(&goods).Error
+	if err2 == nil {
+		//删除属性
+		goodsAttr := models.GoodsAttr{GoodsId: id}
+		err3 := models.DB.Where("1=1").Delete(&goodsAttr)
+		goodsImage := models.GoodsImage{GoodsId: id}
+		err4 := models.DB.Where("1=1").Delete(&goodsImage).Error
+		if err3 != nil && err4 != nil {
+			c.Error("删除关联数据出错", "/goods")
+		}
+		// os.Remove()
+	} else {
+		c.Error("删除数据出错", "/goods")
+	}
+	c.Success("删除商品数据成功", c.Ctx.Request.Referer())
 }
 
 func (c *GoodsController) DoUpload() {
@@ -400,7 +458,6 @@ func (c *GoodsController) ChangeGoodsImageColor() {
 		}
 	}
 	c.ServeJSON()
-
 }
 
 //删除图库
@@ -424,5 +481,4 @@ func (c *GoodsController) RemoveGoodsImage() {
 		}
 		c.ServeJSON()
 	}
-
 }
