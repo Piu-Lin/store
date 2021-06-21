@@ -1,135 +1,74 @@
 # 电子商务信息系统后端建设
 
-## 公共方法封装
+杭州师范大学 数字经济 191 林日升
 
-### 跳转
+## 实现功能以及使用介绍
 
-封装公共跳转方法，显示正确或错误跳转信息，于`controllers/base.go`。
+运行后跳转 `http://127.0.0.1:8080/admin` 或单击首页链接，实行登录
 
-```go
-func (c *BaseController) Success(message string, redirect string) {
-	c.Data["message"] = message
-	c.Data["redirect"] = "/" + beego.AppConfig.String("adminPath") + redirect
-	c.TplName = "admin/public/success.html"
-}
+超级管理员账户密码为
+username: `admin`
+password `123456`
 
-func (c *BaseController) Error(message string, redirect string) {
-	c.Data["message"] = message
-	c.Data["redirect"] = "/" + beego.AppConfig.String("adminPath") + redirect
-	c.TplName = "admin/public/error.html"
-}
-```
+### 核心功能商品管理
 
-### 图片上传
+#### 显示列表说明
 
-封装图片上传与验证逻辑，于`controllers/base.go`。
+**排序**与**库存** 实现异步修改数字
+**上架**、**精品**、**热销**、**新品**实现异步修改状态
+可在关键词搜索框搜索关键词
 
-```go
-func (c *BaseController) UploadImg(picName string) (string, error) {
-	//1、获取上传的文件
-	f, h, err := c.GetFile(picName)
-	if err != nil {
-		return "", err
-	}
-	//2、关闭文件流
-	defer f.Close()
-	//3、获取后缀名 判断类型是否正确  .jpg .png .gif .jpeg
-	extName := path.Ext(h.Filename)
-	allowExtMap := map[string]bool{
-		".jpg":  true,
-		".png":  true,
-		".gif":  true,
-		".jpeg": true,
-	}
-	if _, ok := allowExtMap[extName]; !ok {
-		return "", errors.New("图片后缀名不合法")
-	}
-	//4、创建图片保存目录  static/upload/20200623
-	day := models.GetDay()
-	dir := "static/upload/" + day
-	if err := os.MkdirAll(dir, 0666); err != nil {
-		return "", err
-	}
-	//5、生成文件名称   144325235235.png
-	fileUnixName := strconv.FormatInt(models.GetUnix(), 10)
-	//static/upload/20200623/144325235235.png
-	saveDir := path.Join(dir, fileUnixName+extName)
-	//6、保存图片
-	c.SaveToFile(picName, saveDir)
-	return saveDir, nil
-}
-```
+#### 增加商品说明
 
-### 时间戳
+##### 详细描述
 
-封装时间戳获取以及转换方法。于`models/tools.go`
+使用了富文本编辑器库
 
-```go
+##### 规格与包装
 
-func UnixToDate(timestamp int) string {
+其中 **商品类型** 动态关联 **商品分类**
+会根据类型选择生成输入框
 
-	t := time.Unix(int64(timestamp), 0)
+##### 商品相册
 
-	return t.Format("2006-01-02 15:04:05")
-}
+**商品相册** 关联**商品属性->颜色**
+并实现批量上传以及异步修改关联颜色以及异步删除
 
-//2020-05-02 15:04:05
-func DateToUnix(str string) int64 {
-	template := "2006-01-02 15:04:05"
-	t, err := time.ParseInLocation(template, str, time.Local)
-	if err != nil {
-		beego.Info(err)
-		return 0
-	}
-	return t.Unix()
-}
+#### 修改商品说明
 
-func GetUnix() int64 {
-	return time.Now().Unix()
-}
-func GetDate() string {
-	template := "2006-01-02 15:04:05"
-	return time.Now().Format(template)
-}
-```
+已实现自动选中要修改的初始值
+其他操作同**商品增加**
 
-### 图片剪切
+### RBAC 权限认证模块
 
-使用`go_image`包，进行图片裁剪
+#### 权限管理
 
-```go
-filename := "static/upload/a.jpg"
-	savepath := "static/upload/a_800.jpg"
-	err1 := ScaleF2F(filename, savepath, 800)
-	if err1 != nil {
-		beego.Error(err1)
-	}
+在权限管理中可配置每种权限所对应能访问的修改页面
 
-	// filename := "static/upload/a.jpg"
-	// savepath := "static/upload/a_800_300.jpg"
+#### 角色管理
 
-	// err := ThumbnailF2F(filename, savepath, 800, 300)
-	// if err != nil {
-	// 	beego.Error(err)
-	// }
+配置管理角色对应其不同的批量管理权限
+如：运营人员可进行商品管理无法进行管理员管理
 
-	//按宽度和高度进行比例缩放，输入和输出都是文件
-	// filename := "static/upload/b.png"
-	// savepath := "static/upload/b_400.png"
-	// err := ThumbnailF2F(filename, savepath, 400, 400)
-	// if err != nil {
-	// 	beego.Error(err)
-	// }
-```
+#### 管理员管理
 
-### 二维码
+配置不同的管理员账户，并对应不同的角色
 
-使用`go-qrcode`进行二维码生成
+## 源代码描述
 
-```go
-	err5 := qrcode.WriteFile("https://www.bing.com", qrcode.Medium, 800, "static/upload/qr.png")
-	if err5 != nil {
-		beego.Error("生成二维码失败")
-	}
-	c.TplName = "index/index.html"
-```
+### 分包描述
+
+- conf 文件夹表示全局配置
+- controllers 描述后端处理逻辑现已实现 admin 模块，详见其描述文件
+- middleware 现只包含路由判断时的权限判断中间件
+- models 数据库映射以及配置模块，详见其描述文件
+- routers 路由跳转模块，现已实现 admin 模块，详见其分类注释
+- static 公共文件存储处
+- text beego 自带测试文件可忽略
+- view 前台静态页面现已实现 admin 模块
+
+### 文件描述
+
+- .gitignore git 上传时忽略的文件
+- go.mod && go.sum golang 包管理文件
+- main.go 项目入口主函数
